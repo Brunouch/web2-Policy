@@ -16,13 +16,9 @@ class CursoSeeder extends Seeder
      */
     public function run()
     {
-        for ($i = 1; $i <= 10; $i++) {
+        for ($i = 0; $i < 10; $i++) {
             DB::table('cursos')->insert([
                 'nome' => Str::random(15),
-                'sigla' => Str::random(15),
-                'tempo' => rand(15,90),
-                'eixo_id' => $i,
-
             ]);
         }
     }

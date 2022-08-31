@@ -16,7 +16,7 @@ class ResourcesSeeder extends Seeder
     {
 
 
-        $arr_cat = ['eixos', 'area', 'alunos', 'professores', 'cursos', 'disciplinas', 'docencias', 'matriculas'];
+        $arr_cat = ['eixos', 'alunos', 'professores', 'cursos', 'disciplinas'];
         $arr_pag = ['index', 'create', 'destroy', 'edit', 'show'];
 
         foreach ($arr_cat as $cat) {

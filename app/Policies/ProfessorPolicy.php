@@ -6,6 +6,8 @@ use App\Models\Professor;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
+use App\Facades\UserPermission;
+
 class ProfessorPolicy
 {
     use HandlesAuthorization;
@@ -13,31 +15,31 @@ class ProfessorPolicy
    
     public function viewAny(User $user)
     {
-        return UserPermissions::isAuthorized('professores.index');
+        return UserPermission::isAuthorized('professores.index');
     }
 
   
     public function view(User $user, Professor $professor)
     {
-        return UserPermissions::isAuthorized('professores.show');
+        return UserPermission::isAuthorized('professores.show');
     }
 
   
     public function create(User $user)
     {
-        return UserPermissions::isAuthorized('professores.create');
+        return UserPermission::isAuthorized('professores.create');
     }
 
    
     public function update(User $user, Professor $professor)
     {
-        return UserPermissions::isAuthorized('professores.edit');
+        return UserPermission::isAuthorized('professores.edit');
     }
 
     
     public function delete(User $user, Professor $professor)
     {
-        return UserPermissions::isAuthorized('professores.destroy');
+        return UserPermission::isAuthorized('professores.destroy');
     }
 
     

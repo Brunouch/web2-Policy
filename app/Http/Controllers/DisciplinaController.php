@@ -14,11 +14,13 @@ use Illuminate\Support\Facades\Log;
 class DisciplinaController extends Controller
 {
 
+    public function __construct()
+    {
+        $this->authorizeResource(Disciplina::class, 'disciplina');
+    }
     public function index()
     {
-        if(!UserPermission::isAuthorized('disciplinas.index')) {
-            return response()->view('templates.restrito');
-        }
+        $this->authorize('viewAny',  Disciplina::class);
 
         $data = Disciplina::with(['curso'])->orderby('nome')->get();
 
@@ -28,9 +30,8 @@ class DisciplinaController extends Controller
 
     public function create()
     {
-        if(!UserPermission::isAuthorized('disciplinas.create')) {
-            return response()->view('templates.restrito');
-        }
+
+        $this->authorize('create', Disciplina::class);
 
         $curso = Curso::orderby('nome')->get();
 
@@ -39,7 +40,9 @@ class DisciplinaController extends Controller
 
 
     public function store(Request $request)
-    {   
+    {
+        $this->authorize('create',  Disciplina::class);
+
         $regras = [
             'nome' => 'required|max:100|min:10',
             'curso_id' => 'required',
@@ -55,29 +58,28 @@ class DisciplinaController extends Controller
 
         //$request->validate($regras, $msgs);
 
-        $curso = Curso::find($request->curso);
-        if (isset($curso)) {
-            $obj = new Disciplina();
-            $obj->nome = mb_strtoupper($request->nome, 'UTF-8');
-            $obj->carga = $request->carga;
-            $obj->curso()->associate($curso);
-            $obj->save();
+        
+        if (isset($disciplina)) {
+            $disciplina = new Disciplina();
+            $disciplina->nome = mb_strtoupper($request->nome, 'UTF-8');
+            $disciplina->carga = $request->carga;
+            $disciplina->curso()->associate($curso);
+            $disciplina->save();
 
             return redirect()->route('disciplinas.index');
         }
     }
 
-    public function edit($id)
-    {   
-        if(!UserPermission::isAuthorized('disciplinas.edit')) {
-            return response()->view('templates.restrito');
-        }
+    public function edit(Disciplina $disciplina)
+    {
 
-        $data = Disciplina::find($id);
+        $this->authorize('update', $disciplina);
+
+       
         $curso = Curso::orderby('nome')->get();
 
-        if (isset($data)) {
-            return view('disciplinas.edit', compact(['data', 'curso']));
+        if (isset($disciplina)) {
+            return view('disciplinas.edit', compact(['disciplina', 'curso']));
         } else {
             $msg = "Disciplina";
             $link = "disciplinas.index";
@@ -85,15 +87,17 @@ class DisciplinaController extends Controller
         }
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Disciplina $disciplina)
     {
-        $obj = Disciplina::find($id);
+       
 
-        if (!isset($obj)) {
-            return "<h1>ID: $id não encontrado!</h1>";
+        $this->authorize('update', $disciplina);
+
+        if (!isset($disciplina)) {
+            return "<h1>Disciplina não encontrado!</h1>";
         }
 
-        if ($request->id == $obj->id) {
+        if ($request->id == $disciplina->id) {
             $regras = [
                 'nome' => 'required|max:100|min:10',
                 'curso_id' => 'required',
@@ -117,28 +121,27 @@ class DisciplinaController extends Controller
         //$request->validate($regras, $msgs);
 
         $curso = Curso::find($request->curso);
-        $obj = Disciplina::find($id);
+        
 
-        if (isset($obj) && isset($curso)) {
-            $obj->nome = mb_strtoupper($request->nome, 'UTF-8');
-            $obj->carga = $request->carga;
-            $obj->curso()->associate($curso);
+        if (isset($disciplina) && isset($curso)) {
+            $disciplina->nome = mb_strtoupper($request->nome, 'UTF-8');
+            $disciplina->carga = $request->carga;
+            $disciplina->curso()->associate($curso);
 
-            $obj->save();
+            $disciplina->save();
 
             return redirect()->route('disciplinas.index');
         }
     }
 
-    public function destroy($id)
+    public function destroy(Disciplina $disciplina)
     {
-        if(!UserPermission::isAuthorized('disciplinas.destroy')) {
-            return response()->view('templates.restrito');
-        }
-        $obj = Disciplina::find($id);
+        $this->authorize('delete', $disciplina);
 
-        if (isset($obj)) {
-            $obj->delete();
+        
+
+        if (isset($disciplina)) {
+            $disciplina->delete();
         }
 
 

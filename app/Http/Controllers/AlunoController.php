@@ -11,12 +11,17 @@ use Illuminate\Http\Request;
 
 class AlunoController extends Controller
 {
- 
+
+
+    public function __construct()
+    {
+        $this->authorizeResource(Aluno::class, 'aluno');
+    }
+    
     public function index()
-    {   
-        if (!UserPermission::isAuthorized('alunos.index')) {
-            return response()->view('templates.restrito');
-        }
+    {
+        $this->authorize('viewAny',  Aluno::class);
+
         $data = Aluno::with(['curso'])->get();
 
         return view('alunos.index', compact(['data']));
@@ -25,9 +30,8 @@ class AlunoController extends Controller
 
     public function create()
     {
-        if (!UserPermission::isAuthorized('alunos.create')) {
-            return response()->view('templates.restrito');
-        }
+
+        $this->authorize('create',  Aluno::class);
 
         $curso = Curso::orderBy('nome')->get();
         return view('alunos.create', compact(['curso']));
@@ -36,6 +40,8 @@ class AlunoController extends Controller
    
     public function store(Request $request)
     {
+
+        $this->authorize('create',  Aluno::class);
 
         $rules = [
             'nome' => 'required|max:100|min:10',
@@ -47,7 +53,9 @@ class AlunoController extends Controller
             "max" => "O campo [:attribute] possui tamanho máximo de [:max] caracteres!",
             "min" => "O campo [:attribute] possui tamanho mínimo de [:min] caracteres!",
         ];
-
+        if (!UserPermission::isAuthorized('alunos.destroy')) {
+            return response()->view('templates.restrito');
+        }
         $request->validate($rules, $msgs);
 
         $curso = Curso::find($request->curso_id);
@@ -64,8 +72,10 @@ class AlunoController extends Controller
             return redirect()->route('alunos.index');
         }
     }
-    public function show($id)
+    public function show(Aluno $aluno)
     {
+        $this->authorize('view', $aluno);
+
         $aluno = Aluno::find($id);
 
         $disc = Disciplina::where('curso_id', $aluno->curso_id)->get();
@@ -76,28 +86,25 @@ class AlunoController extends Controller
     }
 
     
-    public function edit($id)
+    public function edit(Aluno $aluno)
     {
-        if (!UserPermission::isAuthorized('alunos.edit')) {
-            return response()->view('templates.restrito');
-        }
+        $this->authorize('update', $aluno);
+
 
         $curso = Curso::orderBy('nome')->get();
-        $data = Aluno::find($id);
+    
+            return view('alunos.edit', compact(['aluno', 'curso']));
 
-
-        if (isset($data)) {
-            return view('alunos.edit', compact(['data', 'curso']));
-        }
     }
 
 
     
-    public function update(Request $request, $id)
+    public function update(Request $request, Aluno $aluno)
     {
-        $obj = Aluno::find($id);
 
-        if(!isset($obj)) { return "<h1>ID: $id não encontrado!"; }
+        $this->authorize('update', $aluno);
+
+        if(!isset($aluno)) { return "<h1>Aluno: $aluno->nome não encontrado!"; }
 
         $regras = [
             'nome' => 'required|max:100|min:10',
@@ -125,14 +132,12 @@ class AlunoController extends Controller
     
 
    
-    public function destroy($id)
-    {   if(!UserPermission::isAuthorized('alunos.destroy')) {
-        return response()->view('templates.restrito');
-    }
-        $obj = Aluno::find($id);
+    public function destroy(Aluno $aluno)
+    {
+        $this->authorize('delete', $aluno);
 
         if (isset($obj)) {
-            $obj->destroy(($id));
+            $obj->destroy(($aluno));
         } 
 
         return redirect()->route('alunos.index');

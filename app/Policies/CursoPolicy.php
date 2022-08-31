@@ -6,7 +6,7 @@ use App\Models\Curso;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-use App\Facades\UserPermissions;
+use App\Facades\UserPermission;
 use Illuminate\Auth\Access\Gate;
 
 class CursoPolicy
@@ -21,31 +21,31 @@ class CursoPolicy
      */
     public function viewAny(User $user)
     {
-        return UserPermissions::isAuthorized('cursos.index');
+        return UserPermission::isAuthorized('cursos.index');
     }
 
   
     public function view(User $user, Curso $curso)
     {
-        return UserPermissions::isAuthorized('cursos.show');
+        return UserPermission::isAuthorized('cursos.show');
     }
 
    
     public function create(User $user)
     {
-        return UserPermissions::isAuthorized('cursos.create');
+        return UserPermission::isAuthorized('cursos.create');
     }
 
     
     public function update(User $user, Curso $curso)
     {
-        return UserPermissions::isAuthorized('cursos.edit');
+        return UserPermission::isAuthorized('cursos.edit');
     }
 
   
     public function delete(User $user, Curso $curso)
     {
-        return UserPermissions::isAuthorized('cursos.destroy');
+        return UserPermission::isAuthorized('cursos.destroy');
     }
 
   

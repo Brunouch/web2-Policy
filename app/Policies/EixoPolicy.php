@@ -5,6 +5,7 @@ namespace App\Policies;
 use App\Models\Eixo;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use App\Facades\UserPermission;
 
 class EixoPolicy
 {
@@ -13,31 +14,31 @@ class EixoPolicy
   
     public function viewAny(User $user)
     {
-        return UserPermissions::isAuthorized('eixos.index');
+        return UserPermission::isAuthorized('eixos.index');
     }
 
    
     public function view(User $user, Eixo $eixo)
     {
-        return UserPermissions::isAuthorized('eixos.show');
+        return UserPermission::isAuthorized('eixos.show');
     }
 
   
     public function create(User $user)
     {
-        return UserPermissions::isAuthorized('eixos.create');
+        return UserPermission::isAuthorized('eixos.create');
     }
 
  
     public function update(User $user, Eixo $eixo)
     {
-        return UserPermissions::isAuthorized('eixos.edit');
+        return UserPermission::isAuthorized('eixos.edit');
     }
 
  
     public function delete(User $user, Eixo $eixo)
     {
-        return UserPermissions::isAuthorized('eixos.destroy');
+        return UserPermission::isAuthorized('eixos.destroy');
     }
 
    

@@ -2,7 +2,7 @@
 
 @section('conteudo')
 
-<form action="{{ route('eixos.update', $data->id) }}" method="POST">
+<form action="{{ route('eixos.update', $eixo->id) }}" method="POST">
     @csrf
     @method('PUT')
     <div class="row">
@@ -11,7 +11,7 @@
             <div class="row">
                 <div class="col">
                     <div class="form-floating mb-3">
-                        <input type="text" class="form-control @if($errors->has('nome')) is-invalid @endif" name="nome" value="{{$data->nome}}" placeholder="Nome" />
+                        <input type="text" class="form-control @if($errors->has('nome')) is-invalid @endif" name="nome" value="{{$eixo->nome}}" placeholder="Nome" />
                         <label for="nome">Nome do Eixo/Área</label>
                         @if($errors->has('nome'))
                         <div class='invalid-feedback'>

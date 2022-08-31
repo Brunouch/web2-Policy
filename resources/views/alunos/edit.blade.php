@@ -2,7 +2,7 @@
 
 @section('conteudo')
 
-<form action="{{ route('alunos.update', $data->id) }}" method="POST">
+<form action="{{ route('alunos.update', $aluno->id) }}" method="POST">
     @csrf
     @method('PUT')
     <div class="row">
@@ -11,7 +11,7 @@
             <div class="row">
                 <div class="col">
                     <div class="form-floating mb-3">
-                        <input type="text" class="form-control @if($errors->has('nome')) is-invalid @endif" name="nome" placeholder="Nome" value="{{$data->nome}}" />
+                        <input type="text" class="form-control @if($errors->has('nome')) is-invalid @endif" name="nome" placeholder="Nome" value="{{$aluno->nome}}" />
                         <label for="nome">Nome do Aluno</label>
                         @if($errors->has('nome'))
                         <div class='invalid-feedback'>
@@ -27,7 +27,7 @@
                         <span class="input-group-text bg-dark text-white">Curso</span>
                         <select name="curso_id" class="form-select @if($errors->has('curso_id')) is-invalid @endif">
                             @foreach ($curso as $item)
-                            <option value="{{$item->id}}" @if($item->id == $data->curso_id) selected="true" @endif>
+                            <option value="{{$item->id}}" @if($item->id == $aluno->curso_id) selected="true" @endif>
                                 {{ $item->nome }}
                             </option>
                             @endforeach

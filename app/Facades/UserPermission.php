@@ -8,17 +8,19 @@ class UserPermission
 {
 
     public static function loadPermissions($user_type)
-    {
+    {   
+        
 
         $sess = Array();
-        $perm = Permission::where('type_id', $user_type)->get();
+        $perm = Permission::with('resource')->where('role_id', $user_type)->get();
 
         foreach ($perm as $item) {
 
-            $sess[$item->regra] = (bool) $item->permissao;
+            $sess[$item->resource->name] = (bool) $item->permissao;
         }
 
         session(['user_permissions' => $sess]);
+
     }
 
     public static function isAuthorized($rule)
@@ -26,12 +28,7 @@ class UserPermission
 
         $permissions = session('user_permissions');
 
-
         return $permissions[$rule];
     }
 
-    public static function test()
-    {
-        return "<h1>UserPermissionsFacade - Running!!</h1>";
-    }
 }

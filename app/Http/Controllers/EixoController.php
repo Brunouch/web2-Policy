@@ -8,12 +8,15 @@ use App\Facades\UserPermission;
 
 class EixoController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Eixo::class, 'eixo');
+    }
     
     public function index()
     {
-        if(!UserPermission::isAuthorized('eixos.index')) {
-            return response()->view('templates.restrito');
-        }
+
+        $this->authorize('viewAny',  Eixo::class);
 
         $data = Eixo::orderby('nome')->get();
 
@@ -23,18 +26,16 @@ class EixoController extends Controller
     
     public function create()
     {
-        if(!UserPermission::isAuthorized('eixos.create')) {
-            return response()->view('templates.restrito');
-        }
+        $this->authorize('create',  Eixo::class);
+
         return view('eixos.create');
     }
 
    
     public function store(Request $request)
     {
-        if(!UserPermission::isAuthorized('eixos.index')) {
-            abort(403);
-        }
+        $this->authorize('create',  Eixo::class);
+
         $regras = [
             'nome' => 'required|max:100|min:10',
         ];
@@ -56,35 +57,37 @@ class EixoController extends Controller
         return redirect()->route('eixos.index');
     }
 
-    public function edit($id)
+    public function edit(Eixo $eixo)
     {
-        if(!UserPermission::isAuthorized('eixos.edit')) {
-            return response()->view('templates.restrito');
+
+        $this->authorize('update', $eixo);
+
+        
+
+        if(!isset($eixo)){
+            return "<h1>Eixo não encontrado!</h1>";
         }
 
-        $data = Eixo::find($id);
-
-        if(!isset($data)){
-            return "<h1>ID: $id não encontrado!</h1>";
-        }
-
-        return view('eixos.edit', compact(['data']));
+        return view('eixos.edit', compact(['eixo']));
     }
 
   
-    public function update(Request $request, $id)
+    public function update(Request $request, Eixo $eixo)
     {
-        $obj = Eixo::find($id);
+
+        $this->authorize('update', $eixo);
+
+        
 
         $regras = [
             'nome' => 'required|max:100|min:10'
         ];
 
-       if (!isset($obj)) {
-            return "<h1>ID: $id não encontrado!</h1>";
+       if (!isset($eixo)) {
+            return "<h1>Eixo não encontrado!</h1>";
         }
 
-        if (trim($request->nome) == trim($obj->nome)) {
+        if (trim($request->nome) == trim($eixo->nome)) {
             $regras = [
                 'nome' => 'required|max:100|min:10'
             ]; 
@@ -100,10 +103,10 @@ class EixoController extends Controller
         $request->validate($regras, $msgs);
 
        
-        $obj = Eixo::find($id);
-        if (isset($obj)) {
-            $obj->nome = mb_strtoupper($request->nome, 'UTF-8');
-            $obj->save();
+        
+        if (isset($eixo)) {
+            $eixo->nome = mb_strtoupper($request->nome, 'UTF-8');
+            $eixo->save();
         }
 
        
@@ -112,17 +115,15 @@ class EixoController extends Controller
     }
 
     
-    public function destroy($id)
+    public function destroy(Eixo $eixo)
     {
+        $this->authorize('delete', $eixo);
 
-        if(!UserPermission::isAuthorized('eixos.destroy')) {
-            return response()->view('templates.restrito');
-        }
-        $obj = Eixo::find($id);
+       
 
         
-        if (isset($obj)) {
-            $obj->delete();
+        if (isset($eixo)) {
+            $eixo->delete();
         }
 
         return redirect()->route('eixos.index');

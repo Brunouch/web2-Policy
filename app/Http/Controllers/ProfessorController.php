@@ -12,12 +12,15 @@ use Illuminate\Http\Request;
 
 class ProfessorController extends Controller
 {
-    
+    public function __construct()
+    {
+        $this->authorizeResource(Professor::class, 'professore');
+    }
+
     public function index()
     {
-        if(!UserPermission::isAuthorized('professores.index')) {
-            return response()->view('templates.restrito');
-        }
+        $this->authorize('viewAny',  Professor::class);
+
         $data = Professor::with(['eixo'])->get();
 
         return view('professores.index', compact(['data']));
@@ -25,10 +28,9 @@ class ProfessorController extends Controller
 
 
     public function create()
-    {   
-        if(!UserPermission::isAuthorized('professores.create')) {
-            abort(403);
-        }
+    {
+        $this->authorize('create',  Professor::class);
+
         $eixo = Eixo::orderBy('nome')->get();
         return view('professores.create', compact(['eixo']));
     }
@@ -36,6 +38,8 @@ class ProfessorController extends Controller
 
     public function store(Request $request)
     {
+        $this->authorize('create',  Professor::class);
+
         $rules = [
             'nome' => 'required|max:100|min:10',
             'email' => 'required|max:250|min:15|unique:professors',
@@ -72,24 +76,22 @@ class ProfessorController extends Controller
     }
 
     
-    public function edit($id)
+    public function edit(Professor $professore)
     {
-        if(!UserPermission::isAuthorized('professores.edit')) {
-            return response()->view('templates.restrito');
-        }
+        $this->authorize('update', $professore);
+
         $eixo = Eixo::orderBy('nome')->get();
-        $data = Professor::with(['eixo' => function ($q) {
-            $q->withTrashed();
-        }])->find($id);
+       
 
 
-        if (isset($data)) {
-            return view('professores.edit', compact(['data', 'eixo']));
+        if (isset($professor)) {
+            return view('professores.edit', compact(['professore', 'eixo']));
         }
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Professor $professore)
     {
+        $this->authorize('update', $professore);
         
         $rules = [
             'nome' => 'required|max:100|min:5',
@@ -108,16 +110,16 @@ class ProfessorController extends Controller
         $request->validate($rules, $msgs);
 
         $eixo = Eixo::find($request->eixo);
-        $obj_prof = Professor::find($id);
+      
 
-        if (isset($eixo) && isset($obj_prof)) {
+        if (isset($eixo) && isset($professore)) {
 
-            $obj_prof->nome = mb_strtoupper($request->nome, 'UTF-8');
-            $obj_prof->email = mb_strtolower($request->email, 'UTF-8');
-            $obj_prof->siape = $request->siape;
-            $obj_prof->ativo = $request->radio;
-            $obj_prof->eixo()->associate($eixo);
-            $obj_prof->save();
+            $professore->nome = mb_strtoupper($request->nome, 'UTF-8');
+            $professore->email = mb_strtolower($request->email, 'UTF-8');
+            $professore->siape = $request->siape;
+            $professore->ativo = $request->radio;
+            $professore->eixo()->associate($eixo);
+            $professore->save();
 
 
             return redirect()->route('professores.index');
@@ -125,15 +127,14 @@ class ProfessorController extends Controller
     }
 
    
-    public function destroy($id)
+    public function destroy(Professor $professore)
     {
-        if(!UserPermission::isAuthorized('professores.destroy')) {
-            return response()->view('templates.restrito');
-        }
-        $obj = Professor::find($id);
+        $this->authorize('delete', $professore);
 
-        if (isset($obj)) {
-            $obj->delete();
+        
+
+        if (isset($professore)) {
+            $professore->delete();
         } else {
             $msg = "Professor";
             $link = "professores.index";

@@ -12,13 +12,16 @@ use Illuminate\Http\Request;
 
 class CursoController extends Controller
 {
-    
+    public function __construct()
+    {
+        $this->authorizeResource(Curso::class, 'curso');
+    }
+  
+
     public function index()
     {
-        if(!UserPermission::isAuthorized('cursos.index')) {
-            return response()->view('templates.restrito');
-        }
-
+        
+        $this->authorize('viewAny',  Curso::class);
         $data = Curso::all();
 
         return view('cursos.index', compact('data'));
@@ -26,9 +29,8 @@ class CursoController extends Controller
 
     public function create()
     {
-        if(!UserPermission::isAuthorized('cursos.create')) {
-            return response()->view('templates.restrito');
-        }
+
+        $this->authorize('create',  Curso::class);
 
         $eixo = Eixo::orderby('nome')->get();
 
@@ -38,6 +40,7 @@ class CursoController extends Controller
    
     public function store(Request $request)
     {
+        $this->authorize('create',  Curso::class);
 
         $regras = [
             'nome' => 'required|max:50|min:10|unique:cursos',
@@ -68,28 +71,29 @@ class CursoController extends Controller
         return redirect()->route('cursos.index');
     }
 
-    public function edit($id)
+    public function edit(Curso $curso)
     {
-        
-        $data = Curso::find($id);
+        $this->authorize('update', $curso);
+
+       
         $eixo = Eixo::orderby('nome')->get();
 
-        if (!isset($data)) {
-            return "<h1>ID: $id não encontrado!</h1>";
+        if (!isset($curso)) {
+            return "<h1>Curso não encontrado!</h1>";
         }
-        return view('cursos.edit', compact(['data', 'eixo']));
+        return view('cursos.edit', compact(['curso', 'eixo']));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Curso $curso)
     {
-        
-        $obj = Curso::find($id);
+        $this->authorize('update', $curso);
 
-        if (!isset($obj)) {
-            return "<h1>ID: $id não encontrado!</h1>";
+        
+        if (!isset($curso)) {
+            return "<h1>Curso não encontrado!</h1>";
         }
 
-        if ($request->id == $obj->id) {
+        if ($request->id == $curso->id) {
             $regras = [
                 'nome' => 'required|max:50|min:10',
                 'sigla' => 'required|max:8|min:2',
@@ -115,13 +119,12 @@ class CursoController extends Controller
         $request->validate($regras, $msgs);
 
         $eixo = Eixo::find($request->eixo);
-        $obj = Curso::find($id);
         if (isset($eixo) && isset($obj)) {
-            $obj->nome = mb_strtoupper($request->nome, 'UTF-8');
-            $obj->sigla = mb_strtoupper($request->sigla, 'UTF-8');
-            $obj->tempo = $request->tempo;
-            $obj->eixo()->associate($eixo);
-            $obj->save();
+            $curso->nome = mb_strtoupper($request->nome, 'UTF-8');
+            $curso->sigla = mb_strtoupper($request->sigla, 'UTF-8');
+            $curso->tempo = $request->tempo;
+            $curso->eixo()->associate($eixo);
+            $curso->save();
             return redirect()->route('cursos.index');
         }
 
@@ -131,16 +134,13 @@ class CursoController extends Controller
         return view('erros.id', compact(['msg', 'link']));
     }
 
-    public function destroy($id)
+    public function destroy(Curso $curso)
     {
-        if(!UserPermission::isAuthorized('cursos.destroy')) {
-            return response()->view('templates.restrito');
-        }
+        $this->authorize('delete', $curso);
 
-        $obj = Curso::find($id);
 
-        if (isset($obj)) {
-            $obj->delete();
+        if (isset($curso)) {
+            $curso->delete();
         } else {
             $msg = "Curso";
             $link = "cursos.index";

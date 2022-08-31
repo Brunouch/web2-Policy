@@ -2,7 +2,7 @@
 
 @section('conteudo')
 
-<form action="{{ route('cursos.update', $data->id) }}" method="POST">
+<form action="{{ route('cursos.update', $curso->id) }}" method="POST">
     @csrf
     @method('PUT')
     <div class="row">
@@ -11,7 +11,7 @@
             <div class="row">
                 <div class="col">
                     <div class="form-floating mb-3">
-                        <input type="text" class="form-control @if($errors->has('nome')) is-invalid @endif" name="nome" value="{{$data->nome}}" placeholder="Nome" />
+                        <input type="text" class="form-control @if($errors->has('nome')) is-invalid @endif" name="nome" value="{{$curso->nome}}" placeholder="Nome" />
                         <label for="nome">Nome do Eixo/Área</label>
                         @if($errors->has('nome'))
                         <div class='invalid-feedback'>
@@ -24,7 +24,7 @@
             <div class="row">
                 <div class="col">
                     <div class="form-floating mb-3">
-                        <input type="text" class="form-control @if($errors->has('sigla')) is-invalid @endif" name="sigla" placeholder="Sigla" value="{{$data->sigla}}" />
+                        <input type="text" class="form-control @if($errors->has('sigla')) is-invalid @endif" name="sigla" placeholder="Sigla" value="{{$curso->sigla}}" />
                         <label for="nome">Sigla do Curso</label>
                         @if($errors->has('sigla'))
                         <div class='invalid-feedback'>
@@ -37,7 +37,7 @@
             <div class="row">
                 <div class="col">
                     <div class="form-floating mb-3">
-                        <input type="number" min="1" max="5" class="form-control @if($errors->has('tempo')) is-invalid @endif" name="tempo" placeholder="Tempo" value="{{$data->tempo}}" />
+                        <input type="number" min="1" max="5" class="form-control @if($errors->has('tempo')) is-invalid @endif" name="tempo" placeholder="Tempo" value="{{$curso->tempo}}" />
                         <label for="tempo">Tempo do Curso (anos)</label>
                         @if($errors->has('tempo'))
                         <div class='invalid-feedback'>
@@ -53,7 +53,7 @@
                         <span class="input-group-text bg-dark text-white">Eixo / Área</span>
                         <select name="eixo" class="form-select" class="form-control @if($errors->has('eixo')) is-invalid @endif">
                             @foreach ($eixo as $item)
-                            <option value="{{$item->id}}" @if($item->id == $data->eixo_id) selected="true" @endif>
+                            <option value="{{$item->id}}" @if($item->id == $curso->eixo_id) selected="true" @endif>
                                 {{ $item->nome }}
                             </option>
                             @endforeach
